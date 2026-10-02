@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rogueword</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2312110e'/><text x='16' y='23' font-family='monospace' font-size='22' font-weight='700' text-anchor='middle' fill='%23d65a3a'>@</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-899QE5Q20C"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-899QE5Q20C');
+  </script>
+  <style>
+:root {
+  --bg: #12110e;
+  --panel: #1a1814;
+  --line: #35302a;
+  --line-2: #4a443b;
+  --text: #ece6d6;
+  --muted: #958d7f;
+  --accent: #d65a3a;
+  --accent-hover: #e46a49;
+  --accent-ink: #1a0d08;
+  --gold: #e2b84a;
+  --hit: #4c9a7c;
+  --near: #d1a03a;
+  --miss: #2a2722;
+  --font: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+button { font: inherit; color: inherit; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+
+.topbar { border-bottom: 1px solid var(--line); }
+.topbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { font-size: 22px; font-weight: 700; letter-spacing: .02em; margin: 0; }
+.brand-at { color: var(--accent); margin-right: 6px; }
+.gold { color: var(--gold); font-weight: 700; }
+.gold span { color: var(--muted); font-weight: 400; }
+
+main { flex: 1; width: 100%; max-width: 960px; margin: 0 auto; padding: 28px 20px; }
+.byline { text-align: center; color: var(--muted); font-size: 12px; padding: 18px; }
+#loading { text-align: center; color: var(--muted); }
+
+.panel { border: 1px solid var(--line); background: var(--panel); padding: 18px; }
+.panel-title {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+}
+
+.btn {
+  background: transparent;
+  border: 1px solid var(--line-2);
+  padding: 9px 16px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.btn:hover:not(:disabled) { border-color: var(--text); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.btn.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn.danger { border-color: #7a2e22; color: #f08a73; }
+.btn.danger:hover:not(:disabled) { border-color: #f08a73; }
+.btn.small { padding: 4px 10px; font-size: 13px; }
+
+/* Menu */
+.menu { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.menu-links { grid-column: 1 / -1; display: flex; gap: 10px; flex-wrap: wrap; }
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--line-2);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.menu-item:last-child { margin-bottom: 0; }
+.menu-item:hover { border-color: var(--text); }
+.menu-item strong { font-size: 17px; }
+.menu-item small { color: var(--muted); font-size: 13px; }
+.menu-item.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.menu-item.primary small { color: #4a2216; }
+.menu-item.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.toggle {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+  text-align: left;
+  cursor: pointer;
+}
+.toggle:last-child { border-bottom: 0; }
+.toggle .box { color: var(--muted); flex: none; }
+.toggle[aria-pressed="true"] .box { color: var(--accent); font-weight: 700; }
+.toggle-name { display: block; font-weight: 500; }
+.toggle-desc { display: block; color: var(--muted); font-size: 13px; }
+.toggle:hover .toggle-name { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Game */
+.status {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.status .k { color: var(--muted); margin-right: 6px; }
+.status .quit { margin-left: auto; }
+.tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  padding: 2px 8px;
+  border: 1px solid var(--line-2);
+  color: var(--muted);
+}
+.tag.boss { border-color: var(--accent); color: var(--accent); }
+.timer { font-weight: 700; color: var(--gold); }
+.timer.low { color: var(--accent); }
+
+.game-body { display: grid; grid-template-columns: 230px 1fr; gap: 20px; align-items: start; }
+.kit-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.kit-name { flex: 1; font-size: 14px; }
+.kit-count { color: var(--gold); font-size: 13px; }
+.notes-title { margin-top: 20px; }
+.notes { margin: 0; padding: 0; list-style: none; font-size: 13px; }
+.notes li { padding: 3px 0; }
+.notes li::before { content: "- "; color: var(--muted); }
+.notes b { color: var(--gold); }
+
+.board-col { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.board { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.row { display: flex; gap: 6px; }
+.tile {
+  width: var(--t);
+  height: var(--t);
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--t) * .5);
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 2px solid var(--line);
+}
+.tile.filled { border-color: var(--muted); }
+.tile.hit { background: var(--hit); border-color: var(--hit); color: #0d1a15; }
+.tile.near { background: var(--near); border-color: var(--near); color: #1f1606; }
+.tile.miss { background: var(--miss); border-color: var(--miss); color: var(--muted); }
+.row.fresh .tile { animation: flip .32s ease both; }
+@keyframes flip {
+  from { transform: rotateX(90deg); }
+  to { transform: rotateX(0); }
+}
+
+.guess-form { display: flex; gap: 8px; width: 100%; max-width: 420px; }
+.guess-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 18px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  padding: 9px 12px;
+  outline: none;
+}
+.guess-input:focus { border-color: var(--text); }
+.guess-input::placeholder { letter-spacing: .04em; text-transform: none; color: var(--muted); }
+.message { min-height: 24px; margin: 10px 0; color: #f08a73; font-size: 14px; text-align: center; }
+.answer { text-align: center; }
+.answer p { margin: 0 0 6px; }
+.answer-word { font-size: 24px; font-weight: 700; letter-spacing: .25em; margin-bottom: 14px; }
+
+.keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 440px; }
+.kb-row { display: flex; justify-content: center; gap: 5px; }
+.key {
+  flex: 1;
+  max-width: 38px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid var(--line-2);
+}
+.key.hit { background: var(--hit); border-color: var(--hit); color: #0d1a15; }
+.key.near { background: var(--near); border-color: var(--near); color: #1f1606; }
+.key.miss { border-color: var(--line); color: #4d483f; }
+
+/* Modals */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 7, 5, .8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10;
+}
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow: auto;
+  padding: 22px;
+}
+.modal h2 { margin: 0 0 6px; font-size: 20px; }
+.modal p { margin: 0 0 10px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
+.shop-row { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.shop-row:last-child { border-bottom: 0; }
+.shop-info { flex: 1; }
+.shop-name { font-weight: 700; }
+.lvl { color: var(--gold); font-weight: 400; font-size: 13px; margin-left: 6px; }
+.shop-desc { color: var(--muted); font-size: 13px; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; margin-top: 16px; }
+.stat-line { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; padding: 3px 0; border-bottom: 1px dotted var(--line); }
+.stat-line span:first-child { color: var(--muted); }
+.big-line { font-size: 18px; margin: 12px 0 16px; }
+.big-line b { color: var(--gold); }
+.results { list-style: none; margin: 0; padding: 0; }
+.results li { display: flex; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.results li:last-child { border-bottom: 0; }
+.results .mark { width: 1em; font-weight: 700; }
+.results .won .mark { color: var(--hit); }
+.results .lost .mark { color: var(--accent); }
+.results .word { flex: 1; font-weight: 700; letter-spacing: .15em; }
+.legend { display: flex; gap: 6px; margin: 4px 0 14px; --t: 34px; }
+.help-list { margin: 0; padding-left: 18px; }
+.help-list li { margin-bottom: 8px; }
+
+@media (max-width: 760px) {
+  main { padding: 18px 12px; }
+  .menu, .stats-grid { grid-template-columns: 1fr; }
+  .game-body { grid-template-columns: 1fr; }
+  .kit { order: 2; }
+  .status { gap: 12px; }
+}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <h1 class="brand"><span class="brand-at">@</span>Rogueword</h1>
+    <div class="gold"><b id="gold-stat">5</b> <span>gold</span></div>
+  </div>
+</header>
+
+<main>
+  <p id="loading">Loading word lists...</p>
+
+  <section id="menu" class="menu" hidden>
+    <div class="panel">
+      <h2 class="panel-title">Play</h2>
+      <button class="menu-item primary" onclick="startRun('run')">
+        <strong>Start run</strong>
+        <small id="run-desc"></small>
+      </button>
+      <button class="menu-item" onclick="startRun('endless')">
+        <strong>Endless</strong>
+        <small>Keep going until you miss a word</small>
+      </button>
+    </div>
+    <div class="panel">
+      <h2 class="panel-title">Modifiers</h2>
+      <div id="modifier-list"></div>
+    </div>
+    <div class="menu-links">
+      <button class="btn" onclick="showShop()">Shop</button>
+      <button class="btn" onclick="showStats()">Stats</button>
+      <button class="btn" onclick="showHelp()">How to play</button>
+    </div>
+  </section>
+
+  <section id="game" hidden></section>
+</main>
+
+<footer class="byline">made by Blockhead1800</footer>
+<div id="modal-root"></div>
+
+<script>
+const BASE_GUESSES = 6;
+const ROUND_SECONDS = 60;
+const GOLD_PER_WORD = 4;
+const KB_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
+
+const UPGRADES = [
+  { name: "+1 Guess", cost: 30, max: 1, desc: "Every word gets one extra guess. Always on." },
+  { name: "Super Hint", cost: 25, max: 5, desc: "Reveals one letter in its correct spot. Each level adds one use per run." },
+  { name: "Positive Hint", cost: 15, max: 5, desc: "Reveals a letter that is somewhere in the word. Each level adds one use per run." },
+  { name: "Negative Hint", cost: 10, max: 5, desc: "Reveals a letter that is not in the word. Each level adds one use per run." },
+  { name: "Bonus Guess", cost: 17, max: 5, desc: "Adds one extra guess to the current word. Each level adds one use per run." }
+];
+
+const MODIFIERS = [
+  { name: "Extra word", desc: "6 words per run instead of 5" },
+  { name: "Fewer guesses", desc: "5 guesses per word instead of 6" },
+  { name: "Boss round", desc: "7-letter boss word at the end (every 5th word in Endless)" },
+  { name: "Timer", desc: "60 seconds per word" }
+];
+
+function defaultStats() {
+  return {
+    totalGoldEarned: 0,
+    totalWordsSolved: 0,
+    totalWordsAttempted: 0,
+    totalBossesSolved: 0,
+    totalBossesAttempted: 0,
+    totalHintsUsed: [0, 0, 0, 0, 0],
+    totalGuesses: 0,
+    runsPlayed: 0,
+    runsCompleted: 0,
+    bestRunWords: 0,
+    bestRunBoss: 0,
+    bestRunGuesses: 0,
+    endlessBestWords: 0
+  };
+}
+
+function load(key, fallback) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key));
+    return value ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+// Storage keys are kept from older versions so existing players keep their progress.
+let STATS = { ...defaultStats(), ...load("wordrun_stats", {}) };
+STATS.totalHintsUsed = [0, 1, 2, 3, 4].map(i => +(STATS.totalHintsUsed || [])[i] || 0);
+let upgradeLevels = (() => {
+  const saved = load("wordrun_upgradeLevels", []);
+  return UPGRADES.map((u, i) => Math.min(u.max, Math.max(0, +saved[i] || 0)));
+})();
+let player = { gold: 5, wordsCompleted: 0, ...load("wordrun_player", {}) };
+let modifiers = (() => {
+  const saved = load("rogueword_modifiers", []);
+  return MODIFIERS.map((_, i) => !!saved[i]);
+})();
+
+function saveAll() {
+  localStorage.setItem("wordrun_stats", JSON.stringify(STATS));
+  localStorage.setItem("wordrun_upgradeLevels", JSON.stringify(upgradeLevels));
+  localStorage.setItem("wordrun_player", JSON.stringify(player));
+  localStorage.setItem("rogueword_modifiers", JSON.stringify(modifiers));
+}
+
+let FIVE_LETTER_WORDS = [], SEVEN_LETTER_WORDS = [];
+let FIVE_GUESSES = new Set(), SEVEN_GUESSES = new Set();
+let wordsReady = false;
+
+function parseList(text, len) {
+  return text.split(/\r?\n/)
+    .map(w => w.trim().toLowerCase())
+    .filter(w => w.length === len && /^[a-z]+$/.test(w));
+}
+
+Promise.all([
+  fetch("fiveLetterWords.txt").then(r => r.text()),
+  fetch("sevenLetterWords.txt").then(r => r.text()),
+  fetch("sevenLetterWordsGuess.txt").then(r => r.text())
+]).then(([five, seven, sevenGuess]) => {
+  FIVE_LETTER_WORDS = parseList(five, 5);
+  SEVEN_LETTER_WORDS = parseList(seven, 7);
+  FIVE_GUESSES = new Set(FIVE_LETTER_WORDS);
+  SEVEN_GUESSES = new Set([...parseList(sevenGuess, 7), ...SEVEN_LETTER_WORDS]);
+  if (FIVE_LETTER_WORDS.length < 10 || SEVEN_LETTER_WORDS.length < 2) {
+    document.getElementById("loading").textContent = "Word files loaded, but there aren't enough words. Check the .txt files.";
+    return;
+  }
+  wordsReady = true;
+  showScreen("menu");
+}).catch(() => {
+  document.getElementById("loading").textContent = "Couldn't load the word lists.";
+});
+
+/* ---------- Screens ---------- */
+
+function showScreen(name) {
+  document.getElementById("loading").hidden = true;
+  document.getElementById("menu").hidden = name !== "menu";
+  document.getElementById("game").hidden = name !== "game";
+  if (name === "menu") {
+    document.getElementById("game").innerHTML = "";
+    renderMenu();
+  }
+}
+
+function renderMenu() {
+  const words = modifiers[0] ? 6 : 5;
+  const guesses = (modifiers[1] ? BASE_GUESSES - 1 : BASE_GUESSES) + (upgradeLevels[0] > 0 ? 1 : 0);
+  document.getElementById("run-desc").textContent =
+    `${words} words${modifiers[2] ? " + a boss" : ""}, ${guesses} guesses each, ${GOLD_PER_WORD} gold per word solved`;
+  document.getElementById("modifier-list").innerHTML = MODIFIERS.map((m, i) => `
+    <button class="toggle" aria-pressed="${modifiers[i]}" onclick="toggleModifier(${i})">
+      <span class="box">${modifiers[i] ? "[x]" : "[ ]"}</span>
+      <span><span class="toggle-name">${m.name}</span><span class="toggle-desc">${m.desc}</span></span>
+    </button>
+  `).join("");
+  updateGold();
+}
+
+function toggleModifier(i) {
+  modifiers[i] = !modifiers[i];
+  saveAll();
+  renderMenu();
+}
+
+function updateGold() {
+  document.getElementById("gold-stat").textContent = player.gold;
+}
+
+/* ---------- Run state ---------- */
+
+let run = null;
+let timerId = null;
+
+function round() { return run.rounds[run.index]; }
+function maxGuesses(r) { return run.baseGuesses + r.bonus; }
+function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+
+function makeRound(isBoss) {
+  const list = isBoss ? SEVEN_LETTER_WORDS : FIVE_LETTER_WORDS;
+  const used = new Set(run.rounds.map(r => r.target));
+  let target = pick(list);
+  for (let tries = 0; tries < 20 && used.has(target); tries++) target = pick(list);
+  return { target, isBoss, guesses: [], hints: [], bonus: 0, result: null };
+}
+
+function isEndlessBoss(index) {
+  return run.boss && (index + 1) % 5 === 0;
+}
+
+function startRun(mode) {
+  if (!wordsReady) return;
+  closeModal();
+  const [extraWord, fewerGuesses, boss, timer] = modifiers;
+  run = {
+    mode,
+    boss,
+    timer,
+    baseGuesses: (fewerGuesses ? BASE_GUESSES - 1 : BASE_GUESSES) + (upgradeLevels[0] > 0 ? 1 : 0),
+    uses: upgradeLevels.slice(),
+    rounds: [],
+    index: 0,
+    phase: "guess",
+    timeLeft: ROUND_SECONDS,
+    msg: "",
+    fresh: false,
+    solved: 0,
+    bossSolved: 0
+  };
+  if (mode === "run") {
+    const count = extraWord ? 6 : 5;
+    for (let i = 0; i < count; i++) run.rounds.push(makeRound(false));
+    if (boss) run.rounds.push(makeRound(true));
+    STATS.runsPlayed++;
+  } else {
+    run.rounds.push(makeRound(isEndlessBoss(0)));
+  }
+  saveAll();
+  showScreen("game");
+  startRound();
+}
+
+function startRound() {
+  run.phase = "guess";
+  run.msg = "";
+  run.timeLeft = ROUND_SECONDS;
+  render();
+  startTimer();
+}
+
+function startTimer() {
+  stopTimer();
+  if (!run.timer) return;
+  timerId = setInterval(() => {
+    if (!run || run.phase !== "guess") return stopTimer();
+    run.timeLeft--;
+    const el = document.getElementById("timer");
+    if (el) {
+      el.textContent = `${run.timeLeft}s`;
+      el.classList.toggle("low", run.timeLeft <= 10);
+    }
+    if (run.timeLeft <= 0) {
+      run.msg = "Out of time.";
+      finishWord(false);
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerId);
+  timerId = null;
+}
+
+function showMsg(text) {
+  run.msg = text;
+  const el = document.getElementById("game-msg");
+  if (el) el.textContent = text;
+}
+
+function submitGuess() {
+  if (!run || run.phase !== "guess") return;
+  const r = round();
+  const len = r.target.length;
+  const val = document.getElementById("guess-inp").value.trim().toLowerCase();
+  if (val.length !== len) return showMsg(`Your guess needs ${len} letters.`);
+  const valid = r.isBoss ? SEVEN_GUESSES.has(val) : FIVE_GUESSES.has(val);
+  if (!valid && val !== r.target) return showMsg("Not in the word list.");
+
+  r.guesses.push(val);
+  run.fresh = true;
+  run.msg = "";
+  const won = val === r.target;
+  if (won || r.guesses.length >= maxGuesses(r)) {
+    stopTimer();
+    run.phase = "pending";
+    const thisRun = run;
+    setTimeout(() => { if (run === thisRun) finishWord(won); }, 550);
+  }
+  render();
+}
+
+function finishWord(won) {
+  if (!run || run.phase === "answer") return;
+  stopTimer();
+  const r = round();
+  r.result = won ? "won" : "lost";
+  STATS.totalWordsAttempted++;
+  STATS.totalGuesses += r.guesses.length;
+  if (r.isBoss) STATS.totalBossesAttempted++;
+  if (won) {
+    run.solved++;
+    STATS.totalWordsSolved++;
+    if (r.isBoss) {
+      run.bossSolved++;
+      STATS.totalBossesSolved++;
+    }
+  }
+  run.phase = "answer";
+  saveAll();
+  render();
+}
+
+function isRunOver() {
+  if (run.mode === "endless") return round().result === "lost";
+  return run.index === run.rounds.length - 1;
+}
+
+function nextWord() {
+  if (!run || run.phase !== "answer") return;
+  if (isRunOver()) return endRun();
+  run.index++;
+  if (run.mode === "endless") run.rounds.push(makeRound(isEndlessBoss(run.index)));
+  startRound();
+}
+
+function endRun() {
+  const r = run;
+  run = null;
+  stopTimer();
+  const gold = r.solved * GOLD_PER_WORD;
+  player.gold += gold;
+  STATS.totalGoldEarned += gold;
+
+  let newBest = false;
+  if (r.mode === "run") {
+    STATS.runsCompleted++;
+    STATS.bestRunWords = Math.max(STATS.bestRunWords, r.solved);
+    STATS.bestRunBoss = Math.max(STATS.bestRunBoss, r.bossSolved);
+    if (r.solved === r.rounds.length) {
+      const used = r.rounds.reduce((n, w) => n + w.guesses.length, 0);
+      if (!STATS.bestRunGuesses || used < STATS.bestRunGuesses) {
+        STATS.bestRunGuesses = used;
+        newBest = true;
+      }
+    }
+  } else if (r.solved > STATS.endlessBestWords) {
+    STATS.endlessBestWords = r.solved;
+    newBest = true;
+  }
+  saveAll();
+  showScreen("menu");
+
+  const solvedLine = r.mode === "run"
+    ? `Solved <b>${r.solved}</b> of ${r.rounds.length}`
+    : `Solved <b>${r.solved}</b> in a row`;
+  showModal(`
+    <h2>${r.mode === "run" ? "Run complete" : "Endless over"}</h2>
+    <p class="big-line">${solvedLine} &middot; <b>+${gold}</b> gold</p>
+    ${newBest ? `<p class="muted">${r.mode === "run" ? "New fewest-guesses record for a perfect run." : "New Endless record."}</p>` : ""}
+    <ul class="results">
+      ${r.rounds.map(w => `
+        <li class="${w.result || "lost"}">
+          <span class="mark">${w.result === "won" ? "+" : "x"}</span>
+          <span class="word">${w.target.toUpperCase()}</span>
+          <span class="muted">${w.isBoss ? "boss, " : ""}${w.guesses.length} ${w.guesses.length === 1 ? "guess" : "guesses"}</span>
+        </li>`).join("")}
+    </ul>
+    <div class="modal-actions">
+      <button class="btn primary" data-autofocus onclick="closeModal()">Continue</button>
+    </div>
+  `);
+}
+
+function confirmQuit() {
+  if (!run) return;
+  showModal(`
+    <h2>Abandon this run?</h2>
+    <p class="muted">You won't earn any gold from it.</p>
+    <div class="modal-actions">
+      <button class="btn" data-autofocus onclick="closeModal()">Keep playing</button>
+      <button class="btn danger" onclick="abandonRun()">Abandon</button>
+    </div>
+  `);
+}
+
+function abandonRun() {
+  closeModal();
+  if (!run) return;
+  if (run.mode === "endless" && run.solved > STATS.endlessBestWords) STATS.endlessBestWords = run.solved;
+  run = null;
+  stopTimer();
+  saveAll();
+  showScreen("menu");
+}
+
+/* ---------- Hints ---------- */
+
+function useHint(i) {
+  if (!run || run.phase !== "guess" || !(run.uses[i] > 0) || i < 1) return;
+  const r = round();
+  const T = r.target.toUpperCase();
+  const guessed = new Set(r.guesses.join("").toUpperCase());
+  const hinted = type => r.hints.filter(h => h.type === type);
+  let note;
+
+  if (i === 1) {
+    const known = new Set(hinted("super").map(h => h.pos));
+    r.guesses.forEach(g => [...g].forEach((ch, j) => { if (ch === r.target[j]) known.add(j); }));
+    const open = [...T].map((_, j) => j).filter(j => !known.has(j));
+    if (!open.length) return showMsg("Every letter is already in place.");
+    const pos = pick(open);
+    note = { type: "super", pos, letter: T[pos] };
+  } else if (i === 2) {
+    const known = new Set([...guessed, ...hinted("pos").map(h => h.letter), ...hinted("super").map(h => h.letter)]);
+    const open = [...T].filter(ch => !known.has(ch));
+    if (!open.length) return showMsg("You've already found every letter.");
+    note = { type: "pos", letter: pick(open) };
+  } else if (i === 3) {
+    const known = new Set([...guessed, ...hinted("neg").map(h => h.letter)]);
+    const open = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"].filter(ch => !T.includes(ch) && !known.has(ch));
+    if (!open.length) return showMsg("No letters left to rule out.");
+    note = { type: "neg", letter: pick(open) };
+  } else if (i === 4) {
+    r.bonus++;
+    note = { type: "bonus" };
+  } else {
+    return;
+  }
+
+  r.hints.push(note);
+  run.uses[i]--;
+  STATS.totalHintsUsed[i]++;
+  run.msg = "";
+  saveAll();
+  render();
+}
+
+function noteHTML(h) {
+  if (h.type === "super") return `Letter ${h.pos + 1} is <b>${h.letter}</b>`;
+  if (h.type === "pos") return `Contains <b>${h.letter}</b>`;
+  if (h.type === "neg") return `No <b>${h.letter}</b>`;
+  return `+1 guess for this word`;
+}
+
+/* ---------- Rendering ---------- */
+
+function tileColors(guess, target) {
+  const colors = Array(target.length).fill("miss");
+  const used = Array(target.length).fill(false);
+  for (let i = 0; i < guess.length; i++) {
+    if (guess[i] === target[i]) { colors[i] = "hit"; used[i] = true; }
+  }
+  for (let i = 0; i < guess.length; i++) {
+    if (colors[i] === "hit") continue;
+    const j = [...target].findIndex((ch, k) => ch === guess[i] && !used[k]);
+    if (j !== -1) { colors[i] = "near"; used[j] = true; }
+  }
+  return colors;
+}
+
+function letterStates(r) {
+  const rank = { miss: 1, near: 2, hit: 3 };
+  const states = {};
+  const set = (letter, state) => {
+    if (!states[letter] || rank[state] > rank[states[letter]]) states[letter] = state;
+  };
+  r.guesses.forEach(g => tileColors(g, r.target).forEach((c, i) => set(g[i].toUpperCase(), c)));
+  r.hints.forEach(h => {
+    if (h.type === "super") set(h.letter, "hit");
+    if (h.type === "pos") set(h.letter, "near");
+    if (h.type === "neg") set(h.letter, "miss");
+  });
+  return states;
+}
+
+function kitHTML(r) {
+  const owned = UPGRADES.map((_, i) => i).filter(i => upgradeLevels[i] > 0);
+  const rows = owned.length ? owned.map(i => {
+    const u = UPGRADES[i];
+    if (i === 0) {
+      return `<div class="kit-row" title="${u.desc}"><span class="kit-name">${u.name}</span><span class="kit-count">always on</span></div>`;
+    }
+    const disabled = run.uses[i] <= 0 || run.phase !== "guess";
+    return `<div class="kit-row" title="${u.desc}">
+      <span class="kit-name">${u.name}</span>
+      <span class="kit-count">x${run.uses[i]}</span>
+      <button class="btn small" onclick="useHint(${i})" ${disabled ? "disabled" : ""}>Use</button>
+    </div>`;
+  }).join("") : `<p class="muted small">Nothing yet. Earn gold and buy upgrades in the shop.</p>`;
+
+  const notes = r.hints.length
+    ? `<ul class="notes">${r.hints.map(h => `<li>${noteHTML(h)}</li>`).join("")}</ul>`
+    : `<p class="muted small">Hints you use will show up here.</p>`;
+
+  return `<h3 class="panel-title">Kit</h3>${rows}<h3 class="panel-title notes-title">Notes</h3>${notes}`;
+}
+
+function render() {
+  const r = round();
+  const len = r.target.length;
+  const max = maxGuesses(r);
+  const game = document.getElementById("game");
+
+  const prevInput = document.getElementById("guess-inp");
+  const keepValue = prevInput && !run.fresh ? prevInput.value : "";
+
+  const rows = r.guesses.map((g, idx) => {
+    const colors = tileColors(g, r.target);
+    const fresh = run.fresh && idx === r.guesses.length - 1;
+    return `<div class="row${fresh ? " fresh" : ""}">${[...g].map((ch, i) =>
+      `<span class="tile ${colors[i]}" style="animation-delay:${i * 60}ms">${ch}</span>`).join("")}</div>`;
+  }).join("");
+  const activeRow = run.phase === "guess"
+    ? `<div class="row" id="active-row">${'<span class="tile"></span>'.repeat(len)}</div>`
+    : "";
+
+  let controls = "";
+  if (run.phase === "guess") {
+    controls = `
+      <form class="guess-form" onsubmit="event.preventDefault(); submitGuess();">
+        <input id="guess-inp" class="guess-input" maxlength="${len}" autocomplete="off" autocapitalize="off"
+          autocorrect="off" spellcheck="false" placeholder="${len} letters" aria-label="Your guess">
+        <button class="btn primary" type="submit">Guess</button>
+      </form>`;
+  } else if (run.phase === "answer") {
+    const label = run.mode === "endless" && r.result === "lost"
+      ? "See results"
+      : isRunOver() ? "Finish run" : "Next word";
+    controls = `
+      <div class="answer">
+        ${r.result === "won"
+          ? `<p>Solved in ${r.guesses.length} ${r.guesses.length === 1 ? "guess" : "guesses"}.</p>`
+          : `<p class="muted">The word was</p><div class="answer-word">${r.target.toUpperCase()}</div>`}
+        <button class="btn primary" onclick="nextWord()">${label}</button>
+        <p class="muted small" style="margin-top:8px">or press Enter</p>
+      </div>`;
+  }
+
+  const states = letterStates(r);
+  const keyboard = KB_ROWS.map(row =>
+    `<div class="kb-row">${[...row].map(l => `<span class="key ${states[l] || ""}">${l}</span>`).join("")}</div>`
+  ).join("");
+
+  const wordLabel = run.mode === "run" ? `${run.index + 1}/${run.rounds.length}` : `${run.index + 1}`;
+  const tileSize = `min(54px, calc((100vw - 56px) / ${len} - 6px))`;
+
+  game.innerHTML = `
+    <div class="status">
+      <span class="tag">${run.mode === "run" ? "Run" : "Endless"}</span>
+      ${r.isBoss ? `<span class="tag boss">Boss</span>` : ""}
+      <span><span class="k">word</span>${wordLabel}</span>
+      <span><span class="k">guesses</span>${r.guesses.length}/${max}</span>
+      ${run.mode === "endless" ? `<span><span class="k">solved</span>${run.solved}</span>` : ""}
+      ${run.timer ? `<span><span class="k">time</span><span id="timer" class="timer${run.timeLeft <= 10 ? " low" : ""}">${run.timeLeft}s</span></span>` : ""}
+      <button class="btn small quit" onclick="confirmQuit()">Quit</button>
+    </div>
+    <div class="game-body">
+      <aside class="kit panel">${kitHTML(r)}</aside>
+      <div class="board-col">
+        <div class="board" style="--t:${tileSize}">${rows}${activeRow}</div>
+        ${controls}
+        <div class="message" id="game-msg">${run.msg}</div>
+        <div class="keyboard">${keyboard}</div>
+      </div>
+    </div>
+  `;
+  run.fresh = false;
+
+  const inp = document.getElementById("guess-inp");
+  if (inp) {
+    inp.value = keepValue;
+    inp.addEventListener("input", () => {
+      inp.value = inp.value.replace(/[^a-z]/gi, "");
+      if (run.msg) showMsg("");
+      fillActiveRow(inp.value);
+    });
+    fillActiveRow(keepValue);
+    inp.focus();
+  }
+}
+
+function fillActiveRow(value) {
+  document.querySelectorAll("#active-row .tile").forEach((tile, i) => {
+    tile.textContent = value[i] || "";
+    tile.classList.toggle("filled", !!value[i]);
+  });
+}
+
+/* ---------- Modals ---------- */
+
+function showModal(html) {
+  document.getElementById("modal-root").innerHTML =
+    `<div class="modal-bg" onclick="if (event.target === this) closeModal()"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;
+  const focusTarget = document.querySelector("#modal-root [data-autofocus]");
+  if (focusTarget) focusTarget.focus();
+}
+
+function closeModal() {
+  document.getElementById("modal-root").innerHTML = "";
+  const inp = document.getElementById("guess-inp");
+  if (inp) inp.focus();
+}
+
+function isModalOpen() {
+  return document.getElementById("modal-root").childElementCount > 0;
+}
+
+function showShop() {
+  showModal(`
+    <h2>Shop</h2>
+    <p class="muted">You have <b class="gold">${player.gold}</b> gold. Upgrades are permanent.</p>
+    <div>
+      ${UPGRADES.map((u, i) => {
+        const level = upgradeLevels[i];
+        const maxed = level >= u.max;
+        const afford = player.gold >= u.cost;
+        return `
+          <div class="shop-row">
+            <div class="shop-info">
+              <div class="shop-name">${u.name}<span class="lvl">${level}/${u.max}</span></div>
+              <div class="shop-desc">${u.desc}</div>
+            </div>
+            <button class="btn ${!maxed && afford ? "primary" : ""}" onclick="buyUpgrade(${i})" ${maxed || !afford ? "disabled" : ""}>
+              ${maxed ? "Maxed" : `${u.cost} gold`}
+            </button>
+          </div>`;
+      }).join("")}
+    </div>
+    <div class="modal-actions">
+      <button class="btn" data-autofocus onclick="closeModal()">Close</button>
+    </div>
+  `);
+}
+
+function buyUpgrade(i) {
+  const u = UPGRADES[i];
+  if (run || player.gold < u.cost || upgradeLevels[i] >= u.max) return;
+  player.gold -= u.cost;
+  upgradeLevels[i]++;
+  saveAll();
+  renderMenu();
+  showShop();
+}
+
+function showStats() {
+  const s = STATS;
+  const avg = n => s.totalWordsSolved ? (n / s.totalWordsSolved).toFixed(2) : "-";
+  const hintsTotal = s.totalHintsUsed.slice(1).reduce((a, b) => a + b, 0);
+  const group = (title, rows) => `
+    <div>
+      <h3 class="panel-title">${title}</h3>
+      ${rows.map(([k, v]) => `<div class="stat-line"><span>${k}</span><span>${v}</span></div>`).join("")}
+    </div>`;
+  showModal(`
+    <h2>Stats</h2>
+    <div class="stats-grid">
+      ${group("General", [
+        ["Gold earned", s.totalGoldEarned],
+        ["Runs played", s.runsPlayed],
+        ["Runs completed", s.runsCompleted],
+        ["Best Endless streak", s.endlessBestWords || 0],
+        ["Fewest guesses, perfect run", s.bestRunGuesses || "-"]
+      ])}
+      ${group("Words", [
+        ["Words solved", s.totalWordsSolved],
+        ["Words attempted", s.totalWordsAttempted],
+        ["Bosses solved", s.totalBossesSolved],
+        ["Bosses attempted", s.totalBossesAttempted]
+      ])}
+      ${group("Hints", [
+        ["Super hints", s.totalHintsUsed[1]],
+        ["Positive hints", s.totalHintsUsed[2]],
+        ["Negative hints", s.totalHintsUsed[3]],
+        ["Bonus guesses", s.totalHintsUsed[4]],
+        ["Hints per solved word", avg(hintsTotal)]
+      ])}
+      ${group("Guesses", [
+        ["Total guesses", s.totalGuesses],
+        ["Guesses per solved word", avg(s.totalGuesses)]
+      ])}
+    </div>
+    <div class="modal-actions">
+      <button class="btn danger" onclick="confirmReset()">Reset everything</button>
+      <button class="btn primary" data-autofocus onclick="closeModal()">Close</button>
+    </div>
+  `);
+}
+
+function confirmReset() {
+  showModal(`
+    <h2>Reset everything?</h2>
+    <p class="muted">This wipes your stats, gold, and upgrades. It can't be undone.</p>
+    <div class="modal-actions">
+      <button class="btn" data-autofocus onclick="showStats()">Cancel</button>
+      <button class="btn danger" onclick="resetAll()">Reset</button>
+    </div>
+  `);
+}
+
+function resetAll() {
+  STATS = defaultStats();
+  upgradeLevels = UPGRADES.map(() => 0);
+  player = { gold: 5, wordsCompleted: 0 };
+  saveAll();
+  closeModal();
+  renderMenu();
+}
+
+function showHelp() {
+  const legendTile = (ch, cls) => `<span class="tile ${cls}">${ch}</span>`;
+  showModal(`
+    <h2>How to play</h2>
+    <p class="muted">Guess the hidden word. After each guess the tiles show how close you were:</p>
+    <div class="legend">
+      ${legendTile("r", "hit")}${legendTile("o", "near")}${legendTile("g", "miss")}${legendTile("u", "miss")}${legendTile("e", "miss")}
+    </div>
+    <ul class="help-list">
+      <li><b style="color:var(--hit)">Teal</b>: right letter, right spot. <b style="color:var(--near)">Ochre</b>: in the word, wrong spot. Dark: not in the word.</li>
+      <li>A run is 5 words with ${BASE_GUESSES} guesses each. Every word you solve is worth ${GOLD_PER_WORD} gold, even if you miss others.</li>
+      <li>Endless keeps going until you miss a word.</li>
+      <li>Spend gold in the shop on permanent upgrades. Hints refill at the start of every run.</li>
+      <li>Modifiers make runs harder.</li>
+    </ul>
+    <div class="modal-actions">
+      <button class="btn primary" data-autofocus onclick="closeModal()">Got it</button>
+    </div>
+  `);
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && isModalOpen()) {
+    closeModal();
+    return;
+  }
+  if (e.key === "Enter" && !isModalOpen() && run && run.phase === "answer") {
+    e.preventDefault();
+    nextWord();
+  }
+});
+
+updateGold();
+</script>
+</body>
+</html>
