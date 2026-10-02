@@ -48,7 +48,3 @@ Then go to http://localhost:8000.
 Everything lives in `index.html`. The `.txt` files are the word lists: five-letter words, seven-letter boss answers, and the seven-letter words you're allowed to guess.
 
 Progress saves in your browser's local storage.
-
----
-
-Made by Blockhead1800.
