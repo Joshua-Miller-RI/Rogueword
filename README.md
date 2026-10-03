@@ -1,5 +1,7 @@
 # Rogueword
 
+Previously "Roguewordle" (Had to change due to copyright rules)
+
 Live at [https://joshua-miller-ri.github.io/Rogueword/](https://joshua-miller-ri.github.io/Rogueword/)
 
 Guess words, earn gold, buy hints, go again.
